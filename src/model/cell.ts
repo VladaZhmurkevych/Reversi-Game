@@ -7,7 +7,7 @@ export default class Cell {
   constructor() {}
 
   get isEmpty(): boolean {
-    return !!this.markedByPlayer
+    return !this.markedByPlayer
   }
 
   getValue(): Player | null {

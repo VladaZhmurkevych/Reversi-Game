@@ -43,9 +43,9 @@ export default class Reversi {
       throw new Error(`Can not make move to (${x},${y}) - game is ended`);
     }
 
-    if (!this.getIsCellAvailable(x, y)) {
-      throw new Error(`Can not make move to (${x},${y}) - this cell is not available`);
-    }
+    // if (!this.getIsCellAvailable(x, y)) {
+    //   throw new Error(`Can not make move to (${x},${y}) - this cell is not available`);
+    // }
 
     this.markCell(x, y, this.currentPlayer)
     this.switchPlayers()
@@ -82,6 +82,11 @@ export default class Reversi {
         this.field[x][y] = new Cell()
       }
     }
+
+    this.field[3][3].markByPlayer(this.firstPlayer)
+    this.field[4][4].markByPlayer(this.firstPlayer)
+    this.field[3][4].markByPlayer(this.secondPlayer)
+    this.field[4][3].markByPlayer(this.secondPlayer)
   }
 
   protected getField(): Cell[][] {

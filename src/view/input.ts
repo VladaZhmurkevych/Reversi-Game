@@ -24,9 +24,9 @@ export default class ConsoleInput {
           this.consoleReader.close()
           break;
         case Commands.MOVE:
-          const x = parseInt(command[1])
-          const y = parseInt(command[2])
-          game.makeMove(x, y)
+          const x = parseInt(command[1]) - 1
+          const y = parseInt(command[2]) - 1
+          game.makeMove(y, x)
           break;
       }
     })

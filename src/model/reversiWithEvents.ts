@@ -14,7 +14,7 @@ export default class ReversiWithEvents extends Reversi {
 
   protected prepareField() {
     super.prepareField();
-    this.eventEmitter.emit(ReversiEvent.GAME_STARTED)
+    this.eventEmitter.emit(ReversiEvent.GAME_STARTED, this.getField())
   }
 
   protected endGame(winner: Player) {

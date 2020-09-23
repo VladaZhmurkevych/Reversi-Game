@@ -4,8 +4,10 @@ import ConsoleOutput from './view/output';
 import ConsoleInput from './view/input';
 
 const main = () => {
-  const game = new ReversiWithEvents(new Player('A'), new Player('B'))
-  const output = new ConsoleOutput()
+  const firstPlayer = new Player('A')
+  const secondPlayer = new Player('B')
+  const game = new ReversiWithEvents(firstPlayer, secondPlayer)
+  const output = new ConsoleOutput(firstPlayer, secondPlayer)
   output.listenTo(game)
 
   const input = new ConsoleInput()
