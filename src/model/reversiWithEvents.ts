@@ -30,4 +30,8 @@ export default class ReversiWithEvents extends Reversi {
     super.markCell(x, y, player);
     this.eventEmitter.emit(ReversiEvent.FIELD_UPDATE, this.getField())
   }
+
+  public subscribe(event: ReversiEvent, handler): void {
+    this.eventEmitter.on(event, handler);
+  }
 }
