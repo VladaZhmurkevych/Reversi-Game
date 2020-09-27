@@ -7,6 +7,7 @@ export enum ReversiEvent {
   DRAW = 'draw',
   PLAYER_WON = 'playerWon',
   FIELD_UPDATE = 'fieldUpdate',
+  SWITCH_PLAYERS = 'switchPlayers',
 }
 
 export default class ReversiWithEvents extends Reversi {
@@ -24,6 +25,11 @@ export default class ReversiWithEvents extends Reversi {
     } {
       this.eventEmitter.emit(ReversiEvent.PLAYER_WON, winner)
     }
+  }
+
+  protected switchPlayers() {
+    super.switchPlayers()
+    this.eventEmitter.emit(ReversiEvent.SWITCH_PLAYERS, this.currentPlayer)
   }
 
   protected markCell(x: number, y: number, player: Player) {

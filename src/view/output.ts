@@ -24,6 +24,12 @@ export default class ConsoleOutput {
     game.subscribe(ReversiEvent.GAME_STARTED, this.handleGameStarted.bind(this))
     game.subscribe(ReversiEvent.FIELD_UPDATE, this.handleFieldUpdated.bind(this))
     game.subscribe(ReversiEvent.PLAYER_WON, this.handlePlayerWon)
+    game.subscribe(ReversiEvent.SWITCH_PLAYERS, this.handleSwitchPlayers)
+  }
+
+  private handleSwitchPlayers(player: Player) {
+    const playerColor = COLORS_MAP[this.playerToColorMap[player.name]]
+    console.log(`Now the move of Player: ${player.name} ${playerColor}`)
   }
 
   private handleDraw() {

@@ -4,7 +4,7 @@ import Cell from './cell';
 export default class Reversi {
   private readonly FIELD_SIZE = 8
   private field: Cell[][]
-  private currentPlayer: Player
+  protected currentPlayer: Player
   private winner: Player
   private isEnded: boolean = false
   private firstPlayerCells: Cell[] = []
@@ -36,8 +36,53 @@ export default class Reversi {
     return this.getCell(x, y).isAvailable;
   }
 
+  private getPlayerWithMoreCells(): Player {
+    const isDraw = this.firstPlayerCells.length === this.secondPlayerCells.length
+    if (isDraw) return null
+
+    return this.secondPlayerCells.length > this.firstPlayerCells.length ? this.secondPlayer : this.firstPlayer
+  }
+
   private checkGameEnd(): void {
-    // Check for game end here
+    let isAnyEmptyCell = false
+    for(let x = 0; x < this.FIELD_SIZE; x++) {
+      for(let y = 0; y < this.FIELD_SIZE; y++) {
+        if (this.field[x][y].isEmpty) {
+          isAnyEmptyCell = true;
+          break;
+        }
+      }
+    }
+
+    if (!isAnyEmptyCell) {
+      this.endGame(this.getPlayerWithMoreCells())
+    }
+
+    let isAnyAvailableCellsForCurrentPlayer = this.isAnyCellAvailable();
+
+    if(!isAnyAvailableCellsForCurrentPlayer) {
+      this.moveTurnToAnotherPlayer()
+    }
+  }
+
+  protected moveTurnToAnotherPlayer() {
+    this.switchPlayers();
+    this.updateCellsAvailability();
+    if (!this.isAnyCellAvailable()) {
+      this.endGame(this.getPlayerWithMoreCells())
+    }
+  }
+
+  private isAnyCellAvailable(): boolean {
+    for(let x = 0; x < this.FIELD_SIZE; x++) {
+      for(let y = 0; y < this.FIELD_SIZE; y++) {
+        if (this.field[x][y].isAvailable) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 
   public makeMove(x: number, y: number): void {
@@ -67,6 +112,7 @@ export default class Reversi {
     const playerCells = this.getCurrentPlayerCells();
     for (let x = 0; x < this.FIELD_SIZE; x++) {
       for (let y = 0; y < this.FIELD_SIZE; y++) {
+        this.field[x][y].isAvailable = false
         if (playerCells.includes(this.field[x][y])) {
           const neighborEnemyCellCoords = this.getNeighborEnemyCells(x, y);
           neighborEnemyCellCoords.forEach((neighborCell) =>{
@@ -130,7 +176,7 @@ export default class Reversi {
     cell.markByPlayer(player)
   }
 
-  private switchPlayers(): void {
+  protected switchPlayers(): void {
     this.currentPlayer = this.currentPlayer === this.firstPlayer ? this.secondPlayer : this.firstPlayer
   }
 
