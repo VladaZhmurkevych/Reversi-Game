@@ -1,6 +1,8 @@
 import Player from './player';
 import Cell from './cell';
 
+interface Coordinates { x: number, y: number}
+
 export default class Reversi {
   private readonly FIELD_SIZE = 8
   private field: Cell[][]
@@ -15,9 +17,10 @@ export default class Reversi {
     private readonly secondPlayer: Player
   ) {}
 
-  public startGame() {
+  protected startGame() {
     this.currentPlayer = this.firstPlayer
-    this.prepareField()
+    this.prepareField();
+    this.updateCellsAvailability();
   }
 
   private getCell(x: number, y: number): Cell {
@@ -98,29 +101,64 @@ export default class Reversi {
       throw new Error(`Can not make move to (${x},${y}) - this cell is not available`);
     }
 
-    this.markCell(x, y, this.currentPlayer)
-    this.switchPlayers()
-    this.updateCellsAvailability()
-    this.checkGameEnd()
+    this.markCell(x, y, this.currentPlayer);
+    this.markEarnedEnemyCells(x, y);
+    this.switchPlayers();
+    this.updateCellsAvailability();
+    this.checkGameEnd();
   }
 
   private markEarnedEnemyCells(x, y): void {
+    const neighborEnemyCellCoords = this.getNeighborEnemyCells(x, y);
+    neighborEnemyCellCoords.forEach((neighborCell) =>{
+      const xDiff = neighborCell.x - x
+      const yDiff = neighborCell.y - y
 
+      let currX = neighborCell.x
+      let currY = neighborCell.y
+
+      while (currX < this.FIELD_SIZE && currX >= 0 && currY < this.FIELD_SIZE && currY >= 0) {
+        if (this.field[currX][currY].isEmpty) {
+          break;
+        } else if (this.field[currX][currY].getValue() === this.currentPlayer) {
+          this.markLineByPlayer({ x, y }, { x: currX, y: currY }, this.currentPlayer);
+          break;
+        }
+
+        currY += yDiff;
+        currX += xDiff;
+      }
+    })
+  }
+
+  private markLineByPlayer(start: Coordinates, end: Coordinates, player: Player): void {
+    const xDiff = end.x - start.x > 0 ? 1 : end.x - start.x < 0 ? -1 : 0
+    const yDiff = end.y - start.y > 0 ? 1 : end.y - start.y < 0 ? -1 : 0;
+
+    let currX = start.x
+    let currY = start.y
+
+    while (currX !== end.x || currY !== end.y) {
+      currY += yDiff;
+      currX += xDiff;
+
+      this.markCell(currX, currY, player);
+    }
   }
 
   private updateCellsAvailability(): void {
     const playerCells = this.getCurrentPlayerCells();
+    this.setFieldUnavailable();
     for (let x = 0; x < this.FIELD_SIZE; x++) {
       for (let y = 0; y < this.FIELD_SIZE; y++) {
-        this.field[x][y].isAvailable = false
         if (playerCells.includes(this.field[x][y])) {
           const neighborEnemyCellCoords = this.getNeighborEnemyCells(x, y);
           neighborEnemyCellCoords.forEach((neighborCell) =>{
-            const xDiff = neighborCell.x - x
-            const yDiff = neighborCell.y - y
+            const xDiff = neighborCell.x - x;
+            const yDiff = neighborCell.y - y;
 
-            let currX = neighborCell.x
-            let currY = neighborCell.y
+            let currX = neighborCell.x;
+            let currY = neighborCell.y;
 
             while (currX < this.FIELD_SIZE && currX >= 0 && currY < this.FIELD_SIZE && currY >= 0) {
               currY += yDiff;
@@ -139,11 +177,19 @@ export default class Reversi {
     }
   }
 
-  private getNeighborEnemyCells(x: number, y: number): { x: number, y: number}[] {
+  private setFieldUnavailable(){
+    for (let i = 0; i < this.FIELD_SIZE; i++) {
+      for (let j = 0; j < this.FIELD_SIZE; j++) {
+       this.field[i][j].isAvailable = false;
+      }
+    }
+  }
+
+  private getNeighborEnemyCells(x: number, y: number): Coordinates[] {
     const result = []
     for (let i = x - 1; i <= x + 1; i++) {
       for (let j = y - 1; j <= y + 1 ; j++) {
-        if(this.field[x] && this.field[x][y] && !this.field[x][y].isEmpty && this.field[x][y].getValue() !== this.currentPlayer) {
+        if(this.field[i] && this.field[i][j] && !this.field[i][j].isEmpty && this.field[i][j].getValue() !== this.currentPlayer) {
           result.push({ x: i, y: j})
         }
       }
@@ -189,10 +235,12 @@ export default class Reversi {
       }
     }
 
-    this.field[3][3].markByPlayer(this.firstPlayer)
-    this.field[4][4].markByPlayer(this.firstPlayer)
-    this.field[3][4].markByPlayer(this.secondPlayer)
-    this.field[4][3].markByPlayer(this.secondPlayer)
+    this.field[3][3].markByPlayer(this.firstPlayer);
+    this.field[4][4].markByPlayer(this.firstPlayer);
+    this.field[3][4].markByPlayer(this.secondPlayer);
+    this.field[4][3].markByPlayer(this.secondPlayer);
+    this.firstPlayerCells = [this.field[3][3], this.field[4][4]];
+    this.secondPlayerCells = [this.field[3][4], this.field[4][3]];
   }
 
   protected getField(): Cell[][] {

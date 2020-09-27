@@ -13,8 +13,8 @@ export enum ReversiEvent {
 export default class ReversiWithEvents extends Reversi {
   private eventEmitter = new EventEmitter()
 
-  protected prepareField() {
-    super.prepareField();
+  public startGame() {
+    super.startGame();
     this.eventEmitter.emit(ReversiEvent.GAME_STARTED, this.getField())
   }
 
@@ -32,8 +32,8 @@ export default class ReversiWithEvents extends Reversi {
     this.eventEmitter.emit(ReversiEvent.SWITCH_PLAYERS, this.currentPlayer)
   }
 
-  protected markCell(x: number, y: number, player: Player) {
-    super.markCell(x, y, player);
+  public makeMove(x: number, y: number) {
+    super.makeMove(x, y);
     this.eventEmitter.emit(ReversiEvent.FIELD_UPDATE, this.getField())
   }
 

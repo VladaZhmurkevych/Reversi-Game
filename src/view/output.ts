@@ -1,7 +1,6 @@
 import ReversiWithEvents, {ReversiEvent} from '../model/reversiWithEvents';
 import Player from '../model/player';
 import Cell from '../model/cell';
-import player from '../model/player';
 
 const COLORS_MAP = {
   'red':  '\x1b[31m' + '⬤' + '\x1b[0m',
@@ -24,7 +23,7 @@ export default class ConsoleOutput {
     game.subscribe(ReversiEvent.GAME_STARTED, this.handleGameStarted.bind(this))
     game.subscribe(ReversiEvent.FIELD_UPDATE, this.handleFieldUpdated.bind(this))
     game.subscribe(ReversiEvent.PLAYER_WON, this.handlePlayerWon)
-    game.subscribe(ReversiEvent.SWITCH_PLAYERS, this.handleSwitchPlayers)
+    game.subscribe(ReversiEvent.SWITCH_PLAYERS, this.handleSwitchPlayers.bind(this))
   }
 
   private handleSwitchPlayers(player: Player) {
@@ -41,14 +40,13 @@ export default class ConsoleOutput {
   }
 
   private handleFieldUpdated(field: Cell[][]) {
-    const getFieldDisplayValue = (cell: Cell) => cell.isEmpty ? ' ' : COLORS_MAP[this.playerToColorMap[cell.getValue().name]]
     console.log('   ╬ 1 ╬ 2 ╬ 3 ╬ 4 ╬ 5 ╬ 6 ╬ 7 ╬ 8 ╬')
     console.log('═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╬')
     for (let i = 0; i < 8; i++) {
       if (i !== 0) {
         console.log('═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╬')
       }
-      console.log(` ${i + 1} ║ ${field[i].map(getFieldDisplayValue).join(' ║ ')} ║`)
+      console.log(` ${i + 1} ║ ${field[i].map((cell: Cell) => this.getFieldDisplayValue(cell)).join(' ║ ')} ║`)
     }
     console.log('════════════════════════════════════')
   }
@@ -56,5 +54,14 @@ export default class ConsoleOutput {
   private handleGameStarted(field: Cell[][]) {
     this.handleFieldUpdated(field);
     console.log('Game is started! Make your first move with MOVE X Y')
+  }
+
+  private getFieldDisplayValue(cell: Cell) {
+    if(cell.isEmpty) {
+      return cell.isAvailable ? 'x' : ' ';
+    } else {
+      return COLORS_MAP[this.playerToColorMap[cell.getValue().name]];
+    }
+
   }
 }
