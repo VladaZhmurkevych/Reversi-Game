@@ -8,7 +8,7 @@ const COLORS_MAP = {
 }
 
 export default class ConsoleOutput {
-  private playerToColorMap = {}
+  private readonly playerToColorMap = {}
 
   constructor(firstPlayer: Player, secondPlayer: Player) {
     this.playerToColorMap = {
@@ -16,7 +16,6 @@ export default class ConsoleOutput {
       [secondPlayer.name]: 'blue'
     }
   }
-
 
   public listenTo(game: ReversiWithEvents) {
     game.subscribe(ReversiEvent.DRAW, this.handleDraw)

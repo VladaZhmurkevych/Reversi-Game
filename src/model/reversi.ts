@@ -1,7 +1,13 @@
 import Player from './player';
 import Cell from './cell';
+import {
+  ReversiCellIsNotAvailableError,
+  ReversiGameIsEndedError,
+  ReversiGameNotStartedError,
+  ReversiWrongCoordinatesError
+} from './errors';
 
-interface Coordinates { x: number, y: number}
+export interface Coordinates { x: number, y: number}
 
 export default class Reversi {
   private readonly FIELD_SIZE = 8
@@ -18,9 +24,19 @@ export default class Reversi {
   ) {}
 
   protected startGame() {
-    this.currentPlayer = this.firstPlayer
+    this.currentPlayer = this.firstPlayer;
     this.prepareField();
     this.updateCellsAvailability();
+    this.winner = null;
+    this.isEnded = false;
+    this.startProcessingPlayersMove()
+  }
+
+  private async startProcessingPlayersMove() {
+    while (!this.isEnded) {
+      const { x, y } = await this.currentPlayer.getNextMove(this.getField());
+      this.makeMove(x, y);
+    }
   }
 
   private getCell(x: number, y: number): Cell {
@@ -28,7 +44,7 @@ export default class Reversi {
   }
 
   private getCurrentPlayerCells(): Cell[] {
-    return this.currentPlayer === this.firstPlayer ? this.firstPlayerCells : this.secondPlayerCells
+    return this.currentPlayer === this.firstPlayer ? this.firstPlayerCells : this.secondPlayerCells;
   }
 
   public getCellValue(x: number, y: number): Player | null {
@@ -40,10 +56,10 @@ export default class Reversi {
   }
 
   private getPlayerWithMoreCells(): Player {
-    const isDraw = this.firstPlayerCells.length === this.secondPlayerCells.length
+    const isDraw = this.firstPlayerCells.length === this.secondPlayerCells.length;
     if (isDraw) return null
 
-    return this.secondPlayerCells.length > this.firstPlayerCells.length ? this.secondPlayer : this.firstPlayer
+    return this.secondPlayerCells.length > this.firstPlayerCells.length ? this.secondPlayer : this.firstPlayer;
   }
 
   private checkGameEnd(): void {
@@ -58,13 +74,13 @@ export default class Reversi {
     }
 
     if (!isAnyEmptyCell) {
-      this.endGame(this.getPlayerWithMoreCells())
+      this.endGame(this.getPlayerWithMoreCells());
     }
 
     let isAnyAvailableCellsForCurrentPlayer = this.isAnyCellAvailable();
 
     if(!isAnyAvailableCellsForCurrentPlayer) {
-      this.moveTurnToAnotherPlayer()
+      this.moveTurnToAnotherPlayer();
     }
   }
 
@@ -72,9 +88,11 @@ export default class Reversi {
     this.switchPlayers();
     this.updateCellsAvailability();
     if (!this.isAnyCellAvailable()) {
-      this.endGame(this.getPlayerWithMoreCells())
+      this.endGame(this.getPlayerWithMoreCells());
     }
   }
+
+
 
   private isAnyCellAvailable(): boolean {
     for(let x = 0; x < this.FIELD_SIZE; x++) {
@@ -90,15 +108,19 @@ export default class Reversi {
 
   public makeMove(x: number, y: number): void {
     if (!this.field) {
-      throw new Error('Game wasn\'t started - call startGame() at first');
+      throw new ReversiGameNotStartedError();
     }
 
     if (this.isEnded) {
-      throw new Error(`Can not make move to (${x},${y}) - game is ended`);
+      throw new ReversiGameIsEndedError(x, y);
+    }
+
+    if(isNaN(x) || isNaN(y) || x > 8 || x < 0 || y > 8 || y < 0) {
+      throw new ReversiWrongCoordinatesError();
     }
 
     if (!this.getIsCellAvailable(x, y)) {
-      throw new Error(`Can not make move to (${x},${y}) - this cell is not available`);
+      throw new ReversiCellIsNotAvailableError(x, y);
     }
 
     this.markCell(x, y, this.currentPlayer);
@@ -111,11 +133,11 @@ export default class Reversi {
   private markEarnedEnemyCells(x, y): void {
     const neighborEnemyCellCoords = this.getNeighborEnemyCells(x, y);
     neighborEnemyCellCoords.forEach((neighborCell) =>{
-      const xDiff = neighborCell.x - x
-      const yDiff = neighborCell.y - y
+      const xDiff = neighborCell.x - x;
+      const yDiff = neighborCell.y - y;
 
-      let currX = neighborCell.x
-      let currY = neighborCell.y
+      let currX = neighborCell.x;
+      let currY = neighborCell.y;
 
       while (currX < this.FIELD_SIZE && currX >= 0 && currY < this.FIELD_SIZE && currY >= 0) {
         if (this.field[currX][currY].isEmpty) {
@@ -135,8 +157,8 @@ export default class Reversi {
     const xDiff = end.x - start.x > 0 ? 1 : end.x - start.x < 0 ? -1 : 0
     const yDiff = end.y - start.y > 0 ? 1 : end.y - start.y < 0 ? -1 : 0;
 
-    let currX = start.x
-    let currY = start.y
+    let currX = start.x;
+    let currY = start.y;
 
     while (currX !== end.x || currY !== end.y) {
       currY += yDiff;
@@ -164,10 +186,10 @@ export default class Reversi {
               currY += yDiff;
               currX += xDiff;
 
-              if (this.field[currX][currY].isEmpty) {
-                this.field[currX][currY].isAvailable = true
+              if (this.field[currX] && this.field[currX][currY].isEmpty) {
+                this.field[currX][currY].isAvailable = true;
                 break;
-              } else if (this.field[currX][currY].getValue() === this.currentPlayer) {
+              } else if (this.field[currX] && this.field[currX][currY].getValue() === this.currentPlayer) {
                 break;
               }
             }
@@ -190,7 +212,7 @@ export default class Reversi {
     for (let i = x - 1; i <= x + 1; i++) {
       for (let j = y - 1; j <= y + 1 ; j++) {
         if(this.field[i] && this.field[i][j] && !this.field[i][j].isEmpty && this.field[i][j].getValue() !== this.currentPlayer) {
-          result.push({ x: i, y: j})
+          result.push({ x: i, y: j});
         }
       }
     }
@@ -198,8 +220,8 @@ export default class Reversi {
   }
 
   protected endGame(winner: Player): void {
-    this.isEnded = true
-    this.winner = winner
+    this.isEnded = true;
+    this.winner = winner;
   }
 
   protected markCell(x: number, y: number, player: Player) {
@@ -207,19 +229,19 @@ export default class Reversi {
     const isFirstPlayer = this.currentPlayer === this.firstPlayer;
 
     if (isFirstPlayer) {
-      this.firstPlayerCells.push(cell)
+      this.firstPlayerCells.push(cell);
       if (!cell.isEmpty) {
         this.secondPlayerCells = this.secondPlayerCells.filter(secondPlayerCell => secondPlayerCell !== cell)
       }
     } else {
-      this.secondPlayerCells.push(cell)
+      this.secondPlayerCells.push(cell);
 
       if (!cell.isEmpty) {
-        this.firstPlayerCells = this.firstPlayerCells.filter(firstPlayerCell => firstPlayerCell !== cell)
+        this.firstPlayerCells = this.firstPlayerCells.filter(firstPlayerCell => firstPlayerCell !== cell);
       }
     }
 
-    cell.markByPlayer(player)
+    cell.markByPlayer(player);
   }
 
   protected switchPlayers(): void {
@@ -227,24 +249,24 @@ export default class Reversi {
   }
 
   protected prepareField(): void {
-    this.field = []
+    this.field = [];
     for (let x = 0; x < this.FIELD_SIZE; x++) {
-      this.field[x] = []
+      this.field[x] = [];
       for (let y = 0; y < this.FIELD_SIZE; y++) {
-        this.field[x][y] = new Cell()
+        this.field[x][y] = new Cell();
       }
     }
 
-    this.field[3][3].markByPlayer(this.firstPlayer);
-    this.field[4][4].markByPlayer(this.firstPlayer);
-    this.field[3][4].markByPlayer(this.secondPlayer);
-    this.field[4][3].markByPlayer(this.secondPlayer);
-    this.firstPlayerCells = [this.field[3][3], this.field[4][4]];
-    this.secondPlayerCells = [this.field[3][4], this.field[4][3]];
+    this.field[3][3].markByPlayer(this.secondPlayer);
+    this.field[4][4].markByPlayer(this.secondPlayer);
+    this.field[3][4].markByPlayer(this.firstPlayer);
+    this.field[4][3].markByPlayer(this.firstPlayer);
+    this.secondPlayerCells = [this.field[3][3], this.field[4][4]];
+    this.firstPlayerCells = [this.field[3][4], this.field[4][3]];
   }
 
   protected getField(): Cell[][] {
-    return this.field.map(row => row.map(cell => cell))
+    return this.field.map(row => row.map(cell => cell));
   }
 
 }
