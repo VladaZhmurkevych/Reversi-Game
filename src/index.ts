@@ -10,6 +10,7 @@ import {
   ReversiGameNotStartedError,
   ReversiWrongCoordinatesError
 } from './model/errors';
+import ReversiBoard from './model/reversiBoard';
 
 const main = () => {
   const consoleReader = readline.createInterface({ input: process.stdin });
@@ -22,7 +23,8 @@ const main = () => {
     const firstPlayer = new User('A');
     const secondPlayer = numResponse === 1 ? new AIPlayer() :  new User('B');
 
-    const game = new ReversiWithEvents(firstPlayer, secondPlayer);
+    const board = new ReversiBoard();
+    const game = new ReversiWithEvents(board, firstPlayer, secondPlayer);
     const output = new ConsoleOutput(firstPlayer, secondPlayer);
     output.listenTo(game);
 

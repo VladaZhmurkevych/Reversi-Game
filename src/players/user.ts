@@ -7,6 +7,7 @@ export default class User extends Player {
 
   constructor(name: string) {
     super(name);
+    this.getNextMove = this.getNextMove.bind(this);
   }
 
   public getNextMove(): Coordinates | Promise<Coordinates> {
