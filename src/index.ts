@@ -1,7 +1,7 @@
 import ReversiWithEvents from './model/reversiWithEvents';
 import ConsoleOutput from './view/output';
 import ConsoleInput from './controll/input';
-import readline from "readline";
+import readline from 'readline';
 import User from './players/user';
 import AIPlayer from './players/AIPlayer';
 import {
@@ -11,6 +11,8 @@ import {
   ReversiWrongCoordinatesError
 } from './model/errors';
 import ReversiBoard from './model/reversiBoard';
+import {Color} from './model/player';
+import SmartAIPlayer from './players/SmartAIPlayer';
 
 const main = () => {
   const consoleReader = readline.createInterface({ input: process.stdin });
@@ -20,8 +22,9 @@ const main = () => {
     if (numResponse !== 1 && numResponse !== 2) {
       console.log('Wrong input. Player vs Player mode is chosen by default');
     }
-    const firstPlayer = new User('A');
-    const secondPlayer = numResponse === 1 ? new AIPlayer() :  new User('B');
+    // const firstPlayer = new User('A', Color.BLACK);
+    const firstPlayer = new AIPlayer(Color.BLACK);
+    const secondPlayer = numResponse === 1 ? new SmartAIPlayer(3, Color.WHITE, firstPlayer) :  new User('B', Color.WHITE);
 
     const board = new ReversiBoard();
     const game = new ReversiWithEvents(board, firstPlayer, secondPlayer);

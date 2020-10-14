@@ -39,7 +39,7 @@ export default class Reversi {
     }
 
     this.board.markCell(x, y, this.currentPlayer, this.isFirstPlayerMove);
-    this.board.markEarnedEnemyCells(x, y, this.currentPlayer, this.isFirstPlayerMove);
+    // this.board.markEarnedEnemyCells(x, y, this.currentPlayer, this.isFirstPlayerMove);
     this.switchPlayers();
     this.board.updateCellsAvailability(this.currentPlayer, this.isFirstPlayerMove);
     this.checkGameEnd();
@@ -82,7 +82,7 @@ export default class Reversi {
 
   private async startProcessingPlayersMove(): Promise<void> {
     while (!this.isEnded) {
-      const { x, y } = await this.currentPlayer.getNextMove(this.board.getBoard());
+      const { x, y } = await this.currentPlayer.getNextMove(this.board);
       try {
         this.makeMove(x, y);
       } catch (err) {

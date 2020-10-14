@@ -1,14 +1,15 @@
-import Player from '../model/player';
+import Player, {Color} from '../model/player';
 import Cell from '../model/cell';
 import { Coordinates } from '../model/reversi';
+import ReversiBoard from '../model/reversiBoard';
 
 export default class AIPlayer extends Player {
-  constructor() {
-    super('Computer');
+  constructor(color: Color) {
+    super('Computer', color);
   }
 
-  public getNextMove(field: Cell[][]): Coordinates {
-    const availableCells = this.getAvailableCells(field);
+  public getNextMove(board: ReversiBoard): Coordinates {
+    const availableCells = this.getAvailableCells(board.getBoard());
     const cellIndex = Math.floor(Math.random() * Math.floor(availableCells.length));
     return availableCells[cellIndex];
   }

@@ -1,13 +1,29 @@
 import Cell from './cell';
 import {Coordinates} from './reversi';
-import Player from './player';
+import Player, {Color} from './player';
 
 export default class ReversiBoard {
   private readonly FIELD_SIZE = 8
   private field: Cell[][]
   private firstPlayerCells: Cell[] = []
   private secondPlayerCells: Cell[] = []
-
+  
+  constructor(board?: ReversiBoard) {
+    if (board) {
+      this.field = board.getBoard();
+      this.field.forEach(row => row.forEach(cell => {
+        const cellPlayer = cell.getValue();
+        if (!cellPlayer) return;
+        
+        if (cellPlayer.color === Color.BLACK) {
+          this.firstPlayerCells.push(cell);
+        } else {
+          this.secondPlayerCells.push(cell);
+        }
+      }));
+    }
+  }
+  
   public get isAnyEmptyCell(): boolean {
     return this.field.some((row) => row.some(cell => cell.isEmpty));
   }
@@ -29,6 +45,7 @@ export default class ReversiBoard {
     }
 
     cell.markByPlayer(player);
+    this.markEarnedEnemyCells(x, y, player, isFirstPlayer);
   }
 
   public prepareField(firstPlayer: Player, secondPlayer: Player): void {
@@ -70,7 +87,7 @@ export default class ReversiBoard {
   }
 
   public getBoard(): Cell[][] {
-    return this.field.map(row => row.map(cell => cell));
+    return this.field.map(row => row.map(cell => cell.copy()));
   }
 
   public getCell(x: number, y: number): Cell {
@@ -163,5 +180,9 @@ export default class ReversiBoard {
     if (isDraw) return null;
 
     return this.secondPlayerCells.length > this.firstPlayerCells.length ? secondPlayer : firstPlayer;
+  }
+
+  public getPlayerScore(color: Color): number {
+    return color === Color.BLACK ? this.firstPlayerCells.length : this.secondPlayerCells.length;
   }
 }

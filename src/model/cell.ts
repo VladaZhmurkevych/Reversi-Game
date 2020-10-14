@@ -16,4 +16,11 @@ export default class Cell {
   public markByPlayer(player: Player): void {
     this.markedByPlayer = player;
   }
+
+  public copy(): Cell {
+    const cell = new Cell();
+    cell.markByPlayer(this.markedByPlayer);
+    cell.isAvailable = this.isAvailable;
+    return cell;
+  }
 }
