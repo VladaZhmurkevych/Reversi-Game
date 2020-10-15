@@ -2,8 +2,8 @@ import { Coordinates } from './reversi';
 import ReversiBoard from './reversiBoard';
 
 export enum Color {
-  BLACK,
-  WHITE
+  BLACK = 'black',
+  WHITE = 'white'
 }
 
 export default abstract class Player {

@@ -1,52 +1,93 @@
-import ReversiWithEvents from './model/reversiWithEvents';
-import ConsoleOutput from './view/output';
-import ConsoleInput from './controll/input';
 import readline from 'readline';
-import User from './players/user';
-import AIPlayer from './players/AIPlayer';
-import {
-  ReversiCellIsNotAvailableError,
-  ReversiGameIsEndedError,
-  ReversiGameNotStartedError,
-  ReversiWrongCoordinatesError
-} from './model/errors';
-import ReversiBoard from './model/reversiBoard';
 import {Color} from './model/player';
-import SmartAIPlayer from './players/SmartAIPlayer';
+import Bot from './players/bot';
+import ReversiBoardWithBlackHole from './model/antiReversi/reversiBoardWithBlackHole';
+import AntiReversi from './model/antiReversi/antiReversi';
+import {Coordinates} from './model/reversi';
+import SmartAIPlayerWithOutput, {logToFile} from './players/SmartAIPlayerWithOutput';
+import AIPlayer from './players/AIPlayer';
+import {ReversiCellIsNotAvailableError} from './model/errors';
 
-const main = () => {
+const getGameInfo = (): Promise<{ color: Color, blackHole: string, firstOpponentMove: string }> => new Promise((resolve) => {
   const consoleReader = readline.createInterface({ input: process.stdin });
-  console.log('Do you want play vs Computer(1) or vs another Player(2)? Type number in the console.');
-  consoleReader.question('', (response) => {
-    const numResponse = parseInt(response);
-    if (numResponse !== 1 && numResponse !== 2) {
-      console.log('Wrong input. Player vs Player mode is chosen by default');
+
+  let blackHole = null;
+  let color = null;
+  let firstOpponentMove = null;
+
+  consoleReader.on('line', (data) => {
+    if (!blackHole) {
+      blackHole = data;
+      return;
+    } else if (!color) {
+      color = data;
+
+      if (data === Color.WHITE) {
+        return;
+      }
+    } else if (!firstOpponentMove) {
+      firstOpponentMove = data;
     }
-    // const firstPlayer = new User('A', Color.BLACK);
-    const firstPlayer = new AIPlayer(Color.BLACK);
-    const secondPlayer = numResponse === 1 ? new SmartAIPlayer(3, Color.WHITE, firstPlayer) :  new User('B', Color.WHITE);
 
-    const board = new ReversiBoard();
-    const game = new ReversiWithEvents(board, firstPlayer, secondPlayer);
-    const output = new ConsoleOutput(firstPlayer, secondPlayer);
-    output.listenTo(game);
-
-    const input = new ConsoleInput();
-    input.startProcessing(game);
-
-    process.on('unhandledRejection', (error) => {
-      if (error instanceof ReversiWrongCoordinatesError) {
-        console.log(`Wrong coordinates. Try again!`);
-      } else if(error instanceof ReversiGameIsEndedError) {
-        console.log(`Can not make move to (${error.y + 1},${error.x + 1}) - game is ended`);
-      } else if(error instanceof ReversiCellIsNotAvailableError) {
-        console.log(`Can not make move to (${error.y + 1},${error.x + 1}) - this cell is not available`);
-      } else if (error instanceof ReversiGameNotStartedError) {
-        console.log('Game wasn\'t started - enter start command at first');
-      } else throw error;
-    });
+    consoleReader.close();
   });
 
+  consoleReader.on('close', () => {
+    resolve({ color, blackHole, firstOpponentMove });
+  });
+});
+
+const LETTERS_ARRAY = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+
+export const convertFromStringToCoordinates = (data: string): Coordinates => {
+  const [letter, number] = data.split('');
+  const x = parseInt(number) - 1;
+  const y = LETTERS_ARRAY.indexOf(letter);
+  return { x, y }; 
+};
+
+export const convertFromCoordinatesToString = (coords: Coordinates) => {
+  const letter = LETTERS_ARRAY[coords.y];
+  const number = coords.x + 1;
+  
+  return `${letter}${number}`;
+};
+
+const main = async () => {
+  const { color, blackHole, firstOpponentMove } = await getGameInfo();
+  const blackHoleCoords = convertFromStringToCoordinates(blackHole);
+  let firstOpponentMoveCoords;
+
+  if (firstOpponentMove) {
+    firstOpponentMoveCoords = convertFromStringToCoordinates(firstOpponentMove);
+  }
+
+  const bot = new Bot(color === Color.BLACK ? Color.WHITE : Color.BLACK, firstOpponentMoveCoords);
+  // const bot = new AIPlayer(color === Color.BLACK ? Color.WHITE : Color.BLACK);
+  const ai = new SmartAIPlayerWithOutput(3, color, bot);
+  const board = new ReversiBoardWithBlackHole(null, blackHoleCoords);
+  const [firstPlayer, secondPlayer] = color === Color.BLACK ? [ai, bot] : [bot, ai];
+  const game = new AntiReversi(board, firstPlayer, secondPlayer);
+  game.startGame();
 };
 
 main();
+
+process.on('uncaughtException', (e: ReversiCellIsNotAvailableError) => {
+
+  // logToFile('error' + e.message + '   ' + JSON.stringify(e.stack, null, 2));
+  if (e.x) {
+    console.log(e, 'x: ', e.x, ' y: ', e.y);
+  }
+
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (e: ReversiCellIsNotAvailableError) => {
+  if (e.x) {
+    console.log('ERR' + 'x: ' + e.x + ' y: ' + e.y + ' coords ' + convertFromCoordinatesToString({ x: e.x, y: e.y }));
+  }
+
+  console.log(e);
+  process.exit(1);
+});

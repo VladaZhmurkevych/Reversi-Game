@@ -42,7 +42,7 @@ export default class SmartAIPlayer extends Player {
       availableCells.forEach((cell: Coordinates) => {
         const boardCopy = new ReversiBoard(board);
         boardCopy.markCell(cell.x, cell.y, this, this.color === Color.BLACK);
-        // boardCopy.markEarnedEnemyCells(cell.x, cell.y, this.enemy, this.enemy.color === Color.BLACK);
+        boardCopy.markEarnedEnemyCells(cell.x, cell.y, this, this.color === Color.BLACK);
         const score = this.minMax(boardCopy, depth + 1, false);
         if (score > bestScore) {
           bestScore = score;
@@ -55,7 +55,7 @@ export default class SmartAIPlayer extends Player {
       availableCells.forEach((cell: Coordinates) => {
         const boardCopy = new ReversiBoard(board);
         boardCopy.markCell(cell.x, cell.y, this.enemy, this.enemy.color === Color.BLACK);
-        // boardCopy.markEarnedEnemyCells(cell.x, cell.y, this, this.color === Color.BLACK);
+        boardCopy.markEarnedEnemyCells(cell.x, cell.y, this.enemy, this.enemy.color === Color.BLACK);
         const score = this.minMax(boardCopy, depth + 1, true);
         if (score < bestScore) {
           bestScore = score;
@@ -74,7 +74,7 @@ export default class SmartAIPlayer extends Player {
     availableCells.forEach((cell: Coordinates) => {
       const boardCopy = new ReversiBoard(board);
       boardCopy.markCell(cell.x, cell.y, this, this.color === Color.BLACK);
-      // boardCopy.markEarnedEnemyCells(cell.x, cell.y, this, this.color === Color.BLACK);
+      boardCopy.markEarnedEnemyCells(cell.x, cell.y, this, this.color === Color.BLACK);
       const score = this.minMax(boardCopy, 0, false);
       if (score > bestScore) {
         bestScore = score;

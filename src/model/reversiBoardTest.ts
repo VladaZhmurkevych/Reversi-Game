@@ -1,20 +1,23 @@
 import Cell from './cell';
 import {Coordinates} from './reversi';
 import Player, {Color} from './player';
+import BlackHoleCell from './antiReversi/blackHoleCell';
+import AIPlayer from '../players/AIPlayer';
+import {logToFile} from '../players/SmartAIPlayerWithOutput';
 
 export default class ReversiBoard {
   private readonly FIELD_SIZE = 8
   protected field: Cell[][]
   private firstPlayerCells: Cell[] = []
   private secondPlayerCells: Cell[] = []
-  
+
   constructor(board?: ReversiBoard) {
     if (board) {
       this.field = board.getBoard();
       this.field.forEach(row => row.forEach(cell => {
         const cellPlayer = cell.getValue();
         if (!cellPlayer) return;
-        
+
         if (cellPlayer.color === Color.BLACK) {
           this.firstPlayerCells.push(cell);
         } else {
@@ -23,7 +26,7 @@ export default class ReversiBoard {
       }));
     }
   }
-  
+
   public get isAnyEmptyCell(): boolean {
     return this.field.some((row) => row.some(cell => cell.isEmpty));
   }
@@ -56,12 +59,20 @@ export default class ReversiBoard {
       }
     }
 
-    this.field[3][3].markByPlayer(secondPlayer);
+    this.field[2][2].markByPlayer(secondPlayer);
+    this.field[2][3].markByPlayer(secondPlayer);
+    this.field[2][4].markByPlayer(secondPlayer);
     this.field[4][4].markByPlayer(secondPlayer);
+
+    this.field[3][2].markByPlayer(firstPlayer);
+    this.field[3][3].markByPlayer(firstPlayer);
     this.field[3][4].markByPlayer(firstPlayer);
+    this.field[3][5].markByPlayer(firstPlayer);
     this.field[4][3].markByPlayer(firstPlayer);
-    this.secondPlayerCells = [this.field[3][3], this.field[4][4]];
-    this.firstPlayerCells = [this.field[3][4], this.field[4][3]];
+    this.field[5][5] = new BlackHoleCell();
+
+    this.secondPlayerCells = [this.field[2][2], this.field[2][3], this.field[2][4], this.field[4][4]];
+    this.firstPlayerCells = [this.field[3][2], this.field[3][3], this.field[3][4], this.field[3][5], this.field[4][3]];
   }
 
   public getNeighborEnemyCells(x: number, y: number, currentPlayer: Player): Coordinates[] {
@@ -104,6 +115,25 @@ export default class ReversiBoard {
   public get isAnyCellAvailable(): boolean {
     return this.field.some((row) => row.some(cell => cell.isAvailable));
   }
+
+  //    ╬ 0 ╬ 1 ╬ 2 ╬ 3 ╬ 4 ╬ 5 ╬ 6 ╬ 7 ╬
+  // ═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╬
+  //  0 ║   ║   ║   ║   ║   ║   ║   ║   ║
+  // ═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╬
+  //  1 ║   ║   ║   ║   ║   ║   ║   ║   ║
+  // ═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╬
+  //  2 ║   ║   ║ w ║ w ║ w ║   ║ x ║   ║
+  // ═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╬
+  //  3 ║   ║   ║ b ║ b ║ b ║ b ║   ║   ║
+  // ═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╬
+  //  4 ║   ║ x ║ x ║ b ║ w ║ x ║ x ║   ║
+  // ═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╬
+  //  5 ║   ║   ║   ║ x ║   ║   ║   ║   ║
+  // ═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╬
+  //  6 ║   ║   ║   ║   ║   ║   ║   ║   ║
+  // ═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╬
+  //  7 ║   ║   ║   ║   ║   ║   ║   ║   ║
+  // ════════════════════════════════════
 
   public markEarnedEnemyCells(x: number, y: number, currentPlayer: Player, isFirstPlayer: boolean): void {
     const neighborEnemyCellCoords = this.getNeighborEnemyCells(x, y, currentPlayer);
@@ -185,3 +215,40 @@ export default class ReversiBoard {
     return color === Color.BLACK ? this.firstPlayerCells.length : this.secondPlayerCells.length;
   }
 }
+
+const board = new ReversiBoard();
+const firstPlayer = new AIPlayer(Color.BLACK);
+const secondPlayer = new AIPlayer(Color.WHITE);
+board.prepareField(firstPlayer, secondPlayer);
+board.updateCellsAvailability(secondPlayer, false);
+export const displayField = board => {
+
+    let data = '';
+    data += '   ╬ A ╬ B ╬ C ╬ D ╬ E ╬ F ╬ G ╬ H ╬\n';
+    data += '═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╬\n';
+    for (let i = 0; i < 8; i++) {
+      if (i !== 0) {
+        data += '═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╬\n';
+      }
+      data +=` ${i + 1} ║ ${board.getBoard()[i].map((cell: Cell) => getFieldDisplayValue(cell)).join(' ║ ')} ║\n`;
+    }
+    data += ('════════════════════════════════════\n\n\n');
+    logToFile(data);
+
+};
+
+function getFieldDisplayValue(cell: Cell) {
+  if(cell.isEmpty) {
+    return cell.isAvailable ? 'x' : ' ';
+  } else {
+    return cell.getValue().color[0];
+  }
+}
+
+displayField(board);
+board.markCell(4, 2, secondPlayer, false);
+board.updateCellsAvailability(firstPlayer, true);
+
+displayField(board);
+
+

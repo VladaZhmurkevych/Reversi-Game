@@ -3,7 +3,15 @@ import Player from './player';
 export default class Cell {
   private markedByPlayer: Player | null = null;
 
-  public isAvailable = false
+  private _isAvailable = false;
+
+  public get isAvailable(): boolean {
+    return this._isAvailable;
+  }
+
+  public set isAvailable(value: boolean) {
+    this._isAvailable = value;
+  }
 
   public get isEmpty(): boolean {
     return !this.markedByPlayer;
