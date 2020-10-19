@@ -15,6 +15,30 @@ export default class AntiReversi extends Reversi {
     super.startGame();
   }
 
+  protected moveTurnToAnotherPlayer() {
+    super.moveTurnToAnotherPlayer();
+    this.switchPlayers();
+    this.board.updateCellsAvailability(this.getCurrentPlayer(), this.isFirstPlayerMove);
+  }
+
+  protected async startProcessingPlayersMove(): Promise<void> {
+    while (!this.isGameEnded()) {
+      const move = await this.getCurrentPlayer().getNextMove(this.board);
+      if (!move) {
+        this.switchPlayers();
+        this.board.updateCellsAvailability(this.getCurrentPlayer(), this.isFirstPlayerMove);
+        continue;
+      }
+      const { x, y } = move;
+      try {
+        this.makeMove(x, y);
+      } catch (err) {
+        this.startProcessingPlayersMove();
+        throw err;
+      }
+    }
+  }
+
   makeMove(x: number, y: number) {
     super.makeMove(x, y);
 

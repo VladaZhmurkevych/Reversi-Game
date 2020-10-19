@@ -40,6 +40,7 @@ const getGameInfo = (): Promise<{ color: Color, blackHole: string, firstOpponent
 const LETTERS_ARRAY = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
 export const convertFromStringToCoordinates = (data: string): Coordinates => {
+  if (data === 'pass') return null;
   const [letter, number] = data.split('');
   const x = parseInt(number) - 1;
   const y = LETTERS_ARRAY.indexOf(letter);
@@ -64,7 +65,7 @@ const main = async () => {
 
   const bot = new Bot(color === Color.BLACK ? Color.WHITE : Color.BLACK, firstOpponentMoveCoords);
   // const bot = new AIPlayer(color === Color.BLACK ? Color.WHITE : Color.BLACK);
-  const ai = new SmartAIPlayerWithOutput(3, color, bot);
+  const ai = new SmartAIPlayerWithOutput(4, color, bot);
   const board = new ReversiBoardWithBlackHole(null, blackHoleCoords);
   const [firstPlayer, secondPlayer] = color === Color.BLACK ? [ai, bot] : [bot, ai];
   const game = new AntiReversi(board, firstPlayer, secondPlayer);

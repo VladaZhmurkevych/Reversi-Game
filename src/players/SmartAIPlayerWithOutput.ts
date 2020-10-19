@@ -16,7 +16,11 @@ export default class SmartAIPlayerWithOutput extends SmartAIPlayer {
 
     const move = super.getNextMove(board) as Coordinates;
 
-    console.log(convertFromCoordinatesToString(move));
+    if (move) {
+      console.log(convertFromCoordinatesToString(move));
+    } else  {
+      console.log('pass');
+    }
 
     return move;
   }

@@ -17,7 +17,7 @@ export default class Reversi {
   private currentPlayer: Player;
 
   constructor(
-    private readonly board: ReversiBoard,
+    protected readonly board: ReversiBoard,
     public readonly firstPlayer: Player,
     public readonly secondPlayer: Player
   ) {}
@@ -48,10 +48,9 @@ export default class Reversi {
     this.checkGameEnd();
   }
 
-  private get isFirstPlayerMove(): boolean {
+  protected get isFirstPlayerMove(): boolean {
     return this.currentPlayer === this.firstPlayer;
   }
-
 
   protected isGameEnded(): boolean {
     return this.isEnded;
@@ -83,7 +82,7 @@ export default class Reversi {
     this.winner = winner;
   }
 
-  private async startProcessingPlayersMove(): Promise<void> {
+  protected async startProcessingPlayersMove(): Promise<void> {
     while (!this.isEnded) {
       const { x, y } = await this.currentPlayer.getNextMove(this.board);
       try {
@@ -105,7 +104,7 @@ export default class Reversi {
     }
   }
 
-  private switchPlayers(): void {
+  protected switchPlayers(): void {
     this.currentPlayer = this.isFirstPlayerMove ? this.secondPlayer : this.firstPlayer;
   }
 

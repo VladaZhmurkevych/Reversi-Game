@@ -15,7 +15,7 @@ export default class SmartAIPlayer extends Player {
 
   public minMax(board: ReversiBoard, depth: number, isAITurn: boolean): number {
     if (depth === this.MAX_DEPTH) {
-      return board.getPlayerScore(this.color);
+      return board.getPlayerScore(this.enemy.color);
     }
 
     const currentPlayer = isAITurn ? this : this.enemy;
@@ -82,7 +82,7 @@ export default class SmartAIPlayer extends Player {
       }
     });
 
-    return coordinates || availableCells[0];
+    return coordinates || availableCells[0] || null;
   }
 
   private getAvailableCells(field: Cell[][]): Coordinates[] {
