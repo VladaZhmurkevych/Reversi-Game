@@ -1,0 +1,46 @@
+WITH SORTING
+
+Average Time: 887.6896551724138
+Max Time: 2477
+
+Average Time: 887.6896551724138
+Max Time: 3563
+
+Average Time: 1600.6896551724138
+Max Time: 3731
+
+
+Average Time: 1297.6896551724138
+Max Time: 4366
+
+Average Time: 1427
+Max Time: 4956
+
+WITH REVERSE SORTING -
+
+Average Time: 10720.625
+Max Time: 36616
+
+Average Time: 5948.6
+Max Time: 12962
+
+Average Time: 6778.5
+Max Time: 18804
+
+
+WITHOUT SORTING
+
+Average Time: 887.6896551724138
+Max Time: 4765
+
+Average Time: 2663.7272727272725
+Max Time: 7358
+
+Average Time: 913.5172413793103
+Max Time: 3366
+
+Average Time: 731.5172413793103
+Max Time: 2680
+
+Average Time: 2542.764705882353
+Max Time: 4837

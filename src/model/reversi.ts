@@ -7,7 +7,6 @@ import {
 } from './errors';
 import ReversiBoard from './reversiBoard';
 import Cell from './cell';
-import {displayField} from './reversiBoardTest';
 
 export interface Coordinates { x: number, y: number}
 
@@ -36,8 +35,6 @@ export default class Reversi {
     }
 
     if (!this.board.getIsCellAvailable(x, y)) {
-      // console.log(JSON.stringify(this.board.getCell(x, y)));
-      displayField(this.board);
       throw new ReversiCellIsNotAvailableError(x, y);
     }
 

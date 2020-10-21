@@ -65,7 +65,7 @@ const main = async () => {
 
   const bot = new Bot(color === Color.BLACK ? Color.WHITE : Color.BLACK, firstOpponentMoveCoords);
   // const bot = new AIPlayer(color === Color.BLACK ? Color.WHITE : Color.BLACK);
-  const ai = new SmartAIPlayerWithOutput(4, color, bot);
+  const ai = new SmartAIPlayerWithOutput(7, color, bot);
   const board = new ReversiBoardWithBlackHole(null, blackHoleCoords);
   const [firstPlayer, secondPlayer] = color === Color.BLACK ? [ai, bot] : [bot, ai];
   const game = new AntiReversi(board, firstPlayer, secondPlayer);
@@ -85,9 +85,7 @@ process.on('uncaughtException', (e: ReversiCellIsNotAvailableError) => {
 });
 
 process.on('unhandledRejection', (e: ReversiCellIsNotAvailableError) => {
-  if (e.x) {
-    console.log('ERR' + 'x: ' + e.x + ' y: ' + e.y + ' coords ' + convertFromCoordinatesToString({ x: e.x, y: e.y }));
-  }
+
 
   console.log(e);
   process.exit(1);
