@@ -1,7 +1,8 @@
-import Player, {Color} from '../model/player';
+import Player from '../model/player';
 import { Coordinates } from '../model/reversi';
 import readline from "readline";
 import {convertFromStringToCoordinates} from '../index';
+import {Color} from "../model/color";
 
 export default class Bot extends Player {
   private prevMove: Coordinates;

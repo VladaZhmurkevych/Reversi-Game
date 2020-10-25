@@ -1,6 +1,7 @@
 import Cell from './cell';
 import {Coordinates} from './reversi';
-import Player, {Color} from './player';
+import Player from './player';
+import {Color} from "./color";
 
 export default class ReversiBoard {
   private readonly FIELD_SIZE = 8
@@ -143,8 +144,8 @@ export default class ReversiBoard {
     }
   }
 
-  public updateCellsAvailability(currentPlayer: Player, isFirstPlayer: boolean): void {
-    const playerCells = this.getCurrentPlayerCells(isFirstPlayer);
+  public updateCellsAvailability(currentPlayer: Player): void {
+    const playerCells = this.getCurrentPlayerCells(currentPlayer.color === Color.BLACK);
     this.setFieldUnavailable();
     for (let x = 0; x < this.FIELD_SIZE; x++) {
       for (let y = 0; y < this.FIELD_SIZE; y++) {

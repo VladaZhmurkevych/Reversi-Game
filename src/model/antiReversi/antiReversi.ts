@@ -15,10 +15,28 @@ export default class AntiReversi extends Reversi {
     super.startGame();
   }
 
-  protected moveTurnToAnotherPlayer() {
+  public makeMove(x: number, y: number): void {
+    super.makeMove(x, y);
+
+    let data = '\n ' + JSON.stringify({ x, y }) + '  ' + convertFromCoordinatesToString({ x, y }) + '\n';
+
+    data += '   ╬ A ╬ B ╬ C ╬ D ╬ E ╬ F ╬ G ╬ H ╬\n';
+    data += '═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╬\n';
+    for (let i = 0; i < 8; i++) {
+      if (i !== 0) {
+        data += '═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╬\n';
+      }
+      data +=` ${i + 1} ║ ${this.getField()[i].map((cell: Cell) => this.getFieldDisplayValue(cell)).join(' ║ ')} ║\n`;
+    }
+    data += ('════════════════════════════════════\n\n\n');
+    logToFile(data);
+
+  }
+
+  protected moveTurnToAnotherPlayer(): void {
     super.moveTurnToAnotherPlayer();
     this.switchPlayers();
-    this.board.updateCellsAvailability(this.getCurrentPlayer(), this.isFirstPlayerMove);
+    this.board.updateCellsAvailability(this.getCurrentPlayer());
   }
 
   protected async startProcessingPlayersMove(): Promise<void> {
@@ -26,7 +44,7 @@ export default class AntiReversi extends Reversi {
       const move = await this.getCurrentPlayer().getNextMove(this.board);
       if (!move) {
         this.switchPlayers();
-        this.board.updateCellsAvailability(this.getCurrentPlayer(), this.isFirstPlayerMove);
+        this.board.updateCellsAvailability(this.getCurrentPlayer());
         continue;
       }
       const { x, y } = move;
@@ -39,25 +57,7 @@ export default class AntiReversi extends Reversi {
     }
   }
 
-  makeMove(x: number, y: number) {
-    super.makeMove(x, y);
-
-    let data = '\n ' + JSON.stringify({ x, y }) + '  ' + convertFromCoordinatesToString({ x, y }) + '\n';
-
-    data += '   ╬ A ╬ B ╬ C ╬ D ╬ E ╬ F ╬ G ╬ H ╬\n';
-    data += '═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╬\n';
-    for (let i = 0; i < 8; i++) {
-      if (i !== 0) {
-       data += '═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╬\n';
-      }
-      data +=` ${i + 1} ║ ${this.getField()[i].map((cell: Cell) => this.getFieldDisplayValue(cell)).join(' ║ ')} ║\n`;
-    }
-    data += ('════════════════════════════════════\n\n\n');
-    logToFile(data);
-
-  }
-
-  private getFieldDisplayValue(cell: Cell) {
+  private getFieldDisplayValue(cell: Cell): string {
     if(cell.isEmpty) {
       return cell.isAvailable ? 'x' : ' ';
     } else {

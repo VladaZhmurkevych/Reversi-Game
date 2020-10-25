@@ -1,6 +1,7 @@
-import Player, {Color} from '../model/player';
+import Player from '../model/player';
 import readline from "readline";
 import {Coordinates} from '../model/reversi';
+import {Color} from "../model/color";
 
 export default class User extends Player {
   private consoleReader = readline.createInterface({ input: process.stdin })

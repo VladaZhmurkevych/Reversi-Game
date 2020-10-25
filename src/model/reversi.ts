@@ -41,11 +41,11 @@ export default class Reversi {
     this.board.markCell(x, y, this.currentPlayer, this.isFirstPlayerMove);
     this.board.markEarnedEnemyCells(x, y, this.currentPlayer, this.isFirstPlayerMove);
     this.switchPlayers();
-    this.board.updateCellsAvailability(this.currentPlayer, this.isFirstPlayerMove);
+    this.board.updateCellsAvailability(this.currentPlayer);
     this.checkGameEnd();
   }
 
-  protected get isFirstPlayerMove(): boolean {
+  private get isFirstPlayerMove(): boolean {
     return this.currentPlayer === this.firstPlayer;
   }
 
@@ -60,7 +60,7 @@ export default class Reversi {
   protected startGame(): void {
     this.currentPlayer = this.firstPlayer;
     this.board.prepareField(this.firstPlayer, this.secondPlayer);
-    this.board.updateCellsAvailability(this.currentPlayer, this.isFirstPlayerMove);
+    this.board.updateCellsAvailability(this.currentPlayer);
     this.winner = null;
     this.isEnded = false;
     this.startProcessingPlayersMove();
@@ -68,7 +68,7 @@ export default class Reversi {
 
   protected moveTurnToAnotherPlayer(): void {
     this.switchPlayers();
-    this.board.updateCellsAvailability(this.currentPlayer, this.isFirstPlayerMove);
+    this.board.updateCellsAvailability(this.currentPlayer);
     if (!this.board.isAnyCellAvailable) {
       this.endGame(this.board.getPlayerWithMoreCells(this.firstPlayer, this.secondPlayer));
     }

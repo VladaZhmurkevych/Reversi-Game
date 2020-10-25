@@ -1,12 +1,11 @@
 import readline from 'readline';
-import {Color} from './model/player';
 import Bot from './players/bot';
 import ReversiBoardWithBlackHole from './model/antiReversi/reversiBoardWithBlackHole';
 import AntiReversi from './model/antiReversi/antiReversi';
 import {Coordinates} from './model/reversi';
-import SmartAIPlayerWithOutput, {logToFile} from './players/SmartAIPlayerWithOutput';
-import AIPlayer from './players/AIPlayer';
+import SmartAIPlayerWithOutput from './players/SmartAIPlayerWithOutput';
 import {ReversiCellIsNotAvailableError} from './model/errors';
+import {Color} from "./model/color";
 
 const getGameInfo = (): Promise<{ color: Color, blackHole: string, firstOpponentMove: string }> => new Promise((resolve) => {
   const consoleReader = readline.createInterface({ input: process.stdin });
@@ -64,7 +63,6 @@ const main = async () => {
   }
 
   const bot = new Bot(color === Color.BLACK ? Color.WHITE : Color.BLACK, firstOpponentMoveCoords);
-  // const bot = new AIPlayer(color === Color.BLACK ? Color.WHITE : Color.BLACK);
   const ai = new SmartAIPlayerWithOutput(1, color, bot);
   const board = new ReversiBoardWithBlackHole(null, blackHoleCoords);
   const [firstPlayer, secondPlayer] = color === Color.BLACK ? [ai, bot] : [bot, ai];
@@ -76,7 +74,6 @@ main();
 
 process.on('uncaughtException', (e: ReversiCellIsNotAvailableError) => {
 
-  // logToFile('error' + e.message + '   ' + JSON.stringify(e.stack, null, 2));
   if (e.x) {
     console.log(e, 'x: ', e.x, ' y: ', e.y);
   }
