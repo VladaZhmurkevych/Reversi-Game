@@ -10,7 +10,9 @@
     "lint": "eslint src/**/*.ts",
     "lint:fix": "npm run lint -- --fix",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "bot": "dotnet tester/reversi-ai-tester.dll -c --command \"\""
+    "bot": "dotnet tester/reversi-ai-tester.dll -c --command \"./tester/runTest.sh\"",
+    "bot:prod": "dotnet tester/reversi-ai-tester.dll -c --command \"./tester/runTestProd.sh\"",
+    "bot:single": "dotnet tester/reversi-ai-tester.dll -c -s --command \"./tester/runTest.sh\""
   },
   "repository": {
     "type": "git",

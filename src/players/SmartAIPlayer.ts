@@ -146,13 +146,13 @@ export default class SmartAIPlayer extends Player {
 
     const currentPlayer = isAITurn ? this : this.enemy;
 
-    board.updateCellsAvailability(currentPlayer, currentPlayer.color === Color.BLACK);
+    board.updateCellsAvailability(currentPlayer);
 
     const availableCells = this.getAvailableCells(board.getBoard());
     if(availableCells.length === 0) {
       const copyBoard = new ReversiBoard(board);
       const nextPlayer = currentPlayer === this ? this.enemy : this;
-      copyBoard.updateCellsAvailability(nextPlayer, nextPlayer.color === Color.BLACK);
+      copyBoard.updateCellsAvailability(nextPlayer);
       if(this.getAvailableCells(copyBoard.getBoard()).length === 0) {
        const AIScore = copyBoard.getPlayerScore(this.color);
        const enemyScore = copyBoard.getPlayerScore(this.enemy.color);

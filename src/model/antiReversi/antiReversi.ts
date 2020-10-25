@@ -1,6 +1,5 @@
 import Reversi from '../reversi';
 import Player from '../player';
-import {logToFile} from '../../players/SmartAIPlayerWithOutput';
 import {convertFromCoordinatesToString} from '../../index';
 import Cell from '../cell';
 
@@ -8,6 +7,7 @@ export default class AntiReversi extends Reversi {
   protected endGame(winner: Player): void {
     const antiWinner = winner === this.firstPlayer ? this.secondPlayer : this.firstPlayer;
     super.endGame(antiWinner);
+    console.log('WINNER - ', antiWinner.name);
     process.exit(0);
   }
 
@@ -18,7 +18,7 @@ export default class AntiReversi extends Reversi {
   protected moveTurnToAnotherPlayer() {
     super.moveTurnToAnotherPlayer();
     this.switchPlayers();
-    this.board.updateCellsAvailability(this.getCurrentPlayer(), this.isFirstPlayerMove);
+    this.board.updateCellsAvailability(this.getCurrentPlayer());
   }
 
   protected async startProcessingPlayersMove(): Promise<void> {
@@ -26,7 +26,7 @@ export default class AntiReversi extends Reversi {
       const move = await this.getCurrentPlayer().getNextMove(this.board);
       if (!move) {
         this.switchPlayers();
-        this.board.updateCellsAvailability(this.getCurrentPlayer(), this.isFirstPlayerMove);
+        this.board.updateCellsAvailability(this.getCurrentPlayer());
         continue;
       }
       const { x, y } = move;
