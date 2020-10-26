@@ -26,15 +26,18 @@ export default class Bot extends Player {
   getNextMove(): Coordinates | Promise<Coordinates> {
     return new Promise((resolve) => {
       if (this.prevMove === this.nextMove) {
-        setTimeout(() => {
-          this.prevMove = this.nextMove;
-          resolve(this.nextMove);
+        const interval = setInterval(() => {
+          if(this.prevMove !== this.nextMove) {
+            this.prevMove = this.nextMove;
+            clearInterval(interval);
+            resolve(this.nextMove);
+          }
         }, 100);
       } else {
         this.prevMove = this.nextMove;
         resolve(this.nextMove);
       }
-    })
+    });
 
   }
 }
