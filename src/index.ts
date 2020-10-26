@@ -1,19 +1,13 @@
 import readline from 'readline';
-import {Color} from './model/player';
 import Bot from './players/bot';
 import ReversiBoardWithBlackHole from './model/antiReversi/reversiBoardWithBlackHole';
 import AntiReversi from './model/antiReversi/antiReversi';
-import {Coordinates} from './model/reversi';
-import SmartAIPlayerWithOutput from './players/SmartAIPlayerWithOutput';
-import AIPlayer from './players/AIPlayer';
-import {ReversiCellIsNotAvailableError} from './model/errors';
+import MonteCarloAIPlayerWithOutput from './players/mcts/MonteCarloAIPlayerWithOutput';
+import {Color} from './model/color.enum';
+import {convertFromStringToCoordinates} from './utils';
+import {GameInfo} from './gameInfo.interface';
 
-setTimeout(() => {
-  process.exit(0);
-}, 1000 * 60);
-
-
-const getGameInfo = (): Promise<{ color: Color, blackHole: string, firstOpponentMove: string }> => new Promise((resolve) => {
+const getGameInfo = (): Promise<GameInfo> => new Promise((resolve) => {
   const consoleReader = readline.createInterface({ input: process.stdin });
 
   let blackHole = null;
@@ -42,23 +36,6 @@ const getGameInfo = (): Promise<{ color: Color, blackHole: string, firstOpponent
   });
 });
 
-const LETTERS_ARRAY = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
-
-export const convertFromStringToCoordinates = (data: string): Coordinates => {
-  if (data === 'pass') return null;
-  const [letter, number] = data.split('');
-  const x = parseInt(number) - 1;
-  const y = LETTERS_ARRAY.indexOf(letter);
-  return { x, y }; 
-};
-
-export const convertFromCoordinatesToString = (coords: Coordinates) => {
-  const letter = LETTERS_ARRAY[coords.y];
-  const number = coords.x + 1;
-  
-  return `${letter}${number}`;
-};
-
 const main = async () => {
   const { color, blackHole, firstOpponentMove } = await getGameInfo();
   const blackHoleCoords = convertFromStringToCoordinates(blackHole);
@@ -68,9 +45,10 @@ const main = async () => {
     firstOpponentMoveCoords = convertFromStringToCoordinates(firstOpponentMove);
   }
 
-  const bot = new Bot(color === Color.BLACK ? Color.WHITE : Color.BLACK, firstOpponentMoveCoords);
-  // const bot = new AIPlayer(color === Color.BLACK ? Color.WHITE : Color.BLACK);
-  const ai = new SmartAIPlayerWithOutput(500, color, bot);
+  const botColor = color === Color.BLACK ? Color.WHITE : Color.BLACK;
+
+  const bot = new Bot(botColor, firstOpponentMoveCoords);
+  const ai = new MonteCarloAIPlayerWithOutput(1000, bot, color);
   const board = new ReversiBoardWithBlackHole(null, blackHoleCoords);
   const [firstPlayer, secondPlayer] = color === Color.BLACK ? [ai, bot] : [bot, ai];
   const game = new AntiReversi(board, firstPlayer, secondPlayer);
@@ -78,3 +56,8 @@ const main = async () => {
 };
 
 main();
+
+// Timeout to kill process in case it is not killed by tester
+setTimeout(() => {
+  process.exit(0);
+}, 1000 * 60);

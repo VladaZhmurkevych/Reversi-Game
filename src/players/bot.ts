@@ -1,7 +1,8 @@
-import Player, {Color} from '../model/player';
+import Player from '../model/player';
 import { Coordinates } from '../model/reversi';
 import readline from "readline";
-import {convertFromStringToCoordinates} from '../index';
+import {convertFromStringToCoordinates} from '../utils';
+import {Color} from '../model/color.enum';
 
 export default class Bot extends Player {
   private prevMove: Coordinates;
@@ -23,7 +24,6 @@ export default class Bot extends Player {
   }
 
   getNextMove(): Coordinates | Promise<Coordinates> {
-    // console.log('NEXT BOT MOVE', this.nextMove);
     return new Promise((resolve) => {
       if (this.prevMove === this.nextMove) {
         setTimeout(() => {

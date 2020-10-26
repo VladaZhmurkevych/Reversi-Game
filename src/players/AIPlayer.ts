@@ -1,7 +1,8 @@
-import Player, {Color} from '../model/player';
+import Player from '../model/player';
 import Cell from '../model/cell';
 import { Coordinates } from '../model/reversi';
 import ReversiBoard from '../model/reversiBoard';
+import {Color} from '../model/color.enum';
 
 export default class AIPlayer extends Player {
   constructor(color: Color) {

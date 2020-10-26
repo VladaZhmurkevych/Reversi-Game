@@ -38,8 +38,8 @@ export default class Reversi {
       throw new ReversiCellIsNotAvailableError(x, y);
     }
 
-    this.board.markCell(x, y, this.currentPlayer, this.isFirstPlayerMove);
-    this.board.markEarnedEnemyCells(x, y, this.currentPlayer, this.isFirstPlayerMove);
+    this.board.markCell(x, y, this.currentPlayer);
+    this.board.markEarnedEnemyCells(x, y, this.currentPlayer);
     this.switchPlayers();
     this.board.updateCellsAvailability(this.currentPlayer);
     this.checkGameEnd();

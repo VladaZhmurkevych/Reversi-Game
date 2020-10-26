@@ -1,6 +1,6 @@
 import ReversiBoard from '../../model/reversiBoard';
 import {Coordinates} from '../../model/reversi';
-import Player, {Color} from '../../model/player';
+import Player from '../../model/player';
 
 export default class AntiReversiSimulator {
   private currentPlayer: Player;
@@ -26,8 +26,8 @@ export default class AntiReversiSimulator {
   }
 
   public makeMove(cell: Coordinates): void {
-    this.board.markCell(cell.x, cell.y, this.currentPlayer, this.currentPlayer.color === Color.BLACK);
-    this.board.markEarnedEnemyCells(cell.x, cell.y, this.currentPlayer, this.currentPlayer.color === Color.BLACK);
+    this.board.markCell(cell.x, cell.y, this.currentPlayer);
+    this.board.markEarnedEnemyCells(cell.x, cell.y, this.currentPlayer);
     this.switchPlayers();
     this.board.updateCellsAvailability(this.currentPlayer);
   }
