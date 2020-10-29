@@ -27,7 +27,7 @@ export default class Bot extends Player {
     return new Promise((resolve) => {
       if (this.prevMove === this.nextMove) {
         const interval = setInterval(() => {
-          if(this.prevMove !== this.nextMove) {
+          if (this.prevMove !== this.nextMove || this.nextMove === null) {
             this.prevMove = this.nextMove;
             clearInterval(interval);
             resolve(this.nextMove);
@@ -38,6 +38,5 @@ export default class Bot extends Player {
         resolve(this.nextMove);
       }
     });
-
   }
 }
