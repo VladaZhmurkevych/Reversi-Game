@@ -5,37 +5,35 @@ import {convertFromStringToCoordinates} from '../utils';
 import {Color} from '../model/color.enum';
 
 export default class Bot extends Player {
-  private prevMove: Coordinates;
-  private nextMove: Coordinates;
+  private movesQueue: Coordinates[] = []
   private consoleReader = readline.createInterface({ input: process.stdin })
 
   constructor(color: Color, firstMove?: Coordinates) {
     super('Bot', color);
     if (firstMove) {
-      this.nextMove = firstMove;
+      this.movesQueue.push(firstMove);
     }
     this.listenToInput();
   }
 
   private listenToInput(): void {
     this.consoleReader.on('line', (data) => {
-      this.nextMove = convertFromStringToCoordinates(data);
+      this.movesQueue.push(convertFromStringToCoordinates(data));
     });
   }
 
   getNextMove(): Coordinates | Promise<Coordinates> {
     return new Promise((resolve) => {
-      if (this.prevMove === this.nextMove) {
+      if (this.movesQueue.length === 0) {
         const interval = setInterval(() => {
-          if (this.prevMove !== this.nextMove || this.nextMove === null) {
-            this.prevMove = this.nextMove;
+          if (this.movesQueue.length !== 0) {
             clearInterval(interval);
-            resolve(this.nextMove);
+            resolve(this.movesQueue.pop());
           }
         }, 100);
-      } else {
-        this.prevMove = this.nextMove;
-        resolve(this.nextMove);
+      }
+      else {
+        resolve(this.movesQueue.pop());
       }
     });
   }

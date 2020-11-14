@@ -48,7 +48,7 @@ const main = async () => {
   const botColor = color === Color.BLACK ? Color.WHITE : Color.BLACK;
 
   const bot = new Bot(botColor, firstOpponentMoveCoords);
-  const ai = new MonteCarloAIPlayerWithOutput(1000, bot, color);
+  const ai = new MonteCarloAIPlayerWithOutput(4000, bot, color);
   const board = new ReversiBoardWithBlackHole(null, blackHoleCoords);
   const [firstPlayer, secondPlayer] = color === Color.BLACK ? [ai, bot] : [bot, ai];
   const game = new AntiReversi(board, firstPlayer, secondPlayer);
@@ -56,8 +56,3 @@ const main = async () => {
 };
 
 main();
-
-// Timeout to kill process in case it is not killed by tester
-setTimeout(() => {
-  process.exit(0);
-}, 1000 * 60);
