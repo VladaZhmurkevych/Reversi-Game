@@ -16,7 +16,7 @@ export default class Reversi {
   private currentPlayer: Player;
 
   constructor(
-    private readonly board: ReversiBoard,
+    protected readonly board: ReversiBoard,
     public readonly firstPlayer: Player,
     public readonly secondPlayer: Player
   ) {}
@@ -38,17 +38,16 @@ export default class Reversi {
       throw new ReversiCellIsNotAvailableError(x, y);
     }
 
-    this.board.markCell(x, y, this.currentPlayer, this.isFirstPlayerMove);
-    this.board.markEarnedEnemyCells(x, y, this.currentPlayer, this.isFirstPlayerMove);
+    this.board.markCell(x, y, this.currentPlayer);
+    this.board.markEarnedEnemyCells(x, y, this.currentPlayer);
     this.switchPlayers();
-    this.board.updateCellsAvailability(this.currentPlayer, this.isFirstPlayerMove);
+    this.board.updateCellsAvailability(this.currentPlayer);
     this.checkGameEnd();
   }
 
-  private get isFirstPlayerMove(): boolean {
+  protected get isFirstPlayerMove(): boolean {
     return this.currentPlayer === this.firstPlayer;
   }
-
 
   protected isGameEnded(): boolean {
     return this.isEnded;
@@ -61,7 +60,7 @@ export default class Reversi {
   protected startGame(): void {
     this.currentPlayer = this.firstPlayer;
     this.board.prepareField(this.firstPlayer, this.secondPlayer);
-    this.board.updateCellsAvailability(this.currentPlayer, this.isFirstPlayerMove);
+    this.board.updateCellsAvailability(this.currentPlayer);
     this.winner = null;
     this.isEnded = false;
     this.startProcessingPlayersMove();
@@ -69,7 +68,7 @@ export default class Reversi {
 
   protected moveTurnToAnotherPlayer(): void {
     this.switchPlayers();
-    this.board.updateCellsAvailability(this.currentPlayer, this.isFirstPlayerMove);
+    this.board.updateCellsAvailability(this.currentPlayer);
     if (!this.board.isAnyCellAvailable) {
       this.endGame(this.board.getPlayerWithMoreCells(this.firstPlayer, this.secondPlayer));
     }
@@ -80,9 +79,9 @@ export default class Reversi {
     this.winner = winner;
   }
 
-  private async startProcessingPlayersMove(): Promise<void> {
+  protected async startProcessingPlayersMove(): Promise<void> {
     while (!this.isEnded) {
-      const { x, y } = await this.currentPlayer.getNextMove(this.board.getBoard());
+      const { x, y } = await this.currentPlayer.getNextMove(this.board);
       try {
         this.makeMove(x, y);
       } catch (err) {
@@ -102,7 +101,7 @@ export default class Reversi {
     }
   }
 
-  private switchPlayers(): void {
+  protected switchPlayers(): void {
     this.currentPlayer = this.isFirstPlayerMove ? this.secondPlayer : this.firstPlayer;
   }
 
